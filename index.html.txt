@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noodle House - Mobile Game</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* Mobile Screen Simulator Container */
+        .mobile-container {
+            width: 375px;
+            height: 667px;
+            background: #fffdfa;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #222;
+        }
+
+        /* Restaurant Ambience (Header & Counter) */
+        .header { background: #b71c1c; color: #fff; padding: 15px; text-align: center; font-weight: bold; letter-spacing: 1px; }
+        .stats-bar { display: flex; justify-content: space-around; background: #d32f2f; color: #fff; padding: 10px; font-size: 14px; font-weight: 600; }
+        
+        .counter-area {
+            flex: 1;
+            background: linear-gradient(to bottom, #ffe0b2, #fff3e0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Characters (Customers) */
+        .customer-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            animation: fadeIn 0.4s ease-in-out;
+            border: 2px solid #ffcc80;
+        }
+        .avatar { font-size: 50px; margin-bottom: 5px; }
+        .order-bubble {
+            background: #ffe0b2;
+            border: 2px dashed #f57c00;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            color: #e65100;
+            margin-top: 5px;
+        }
+
+        /* Kitchen & Meals Area */
+        .kitchen-grid {
+            background: #212121;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .item-btn {
+            background: #333333;
+            border: 2px solid #f57c00;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            color: #ffffff;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+        .item-btn:active { transform: scale(0.95); background: #f57c00; }
+        .item-btn span { font-size: 26px; margin-bottom: 4px; }
+
+        /* Notification Toast */
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: none;
+            font-weight: bold;
+            z-index: 10;
+            border: 1px solid #f57c00;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="header">🍜 NOODLE HOUSE 🍜</div>
+    
+    <div class="stats-bar">
+        <div>Score: <span id="score">0</span></div>
+        <div>Time: <span id="timer">60</span>s</div>
+    </div>
+
+    <div class="counter-area">
+        <div id="msg" class="message"></div>
+        <div class="customer-card">
+            <div class="avatar" id="customer-avatar">👨‍🍳</div>
+            <div id="customer-name" style="font-size: 12px; color: #666;">Customer</div>
+            <div class="order-bubble">Wants: <span id="order-item">Ramen Noodle</span></div>
+        </div>
+    </div>
+
+    <!-- Variety of Meals / Products -->
+    <div class="kitchen-grid">
+        <button class="item-btn" onclick="serveOrder('Ramen Noodle')">
+            <span>🍜</span> Ramen Noodle
+        </button>
+        <button class="item-btn" onclick="serveOrder('Fried Noodle')">
+            <span>🍝</span> Fried Noodle
+        </button>
+        <button class="item-btn" onclick="serveOrder('Gyoza Dumplings')">
+            <span>🥟</span> Gyoza
+        </button>
+        <button class="item-btn" onclick="serveOrder('Boba Tea')">
+            <span>🧋</span> Boba Tea
+        </button>
+    </div>
+</div>
+
+<script>
+    const customers = [
+        { avatar: '🧔', name: 'Chef Kenji' },
+        { avatar: '👩', name: 'Student Mei' },
+        { avatar: '👨‍💼', name: 'Office Worker Taro' },
+        { avatar: '👵', name: 'Granny Akiko' }
+    ];
+
+    const menu = ['Ramen Noodle', 'Fried Noodle', 'Gyoza Dumplings', 'Boba Tea'];
+
+    let score = 0;
+    let timeLeft = 60;
+    let currentOrder = '';
+    let gameActive = true;
+
+    function generateCustomer() {
+        if (!gameActive) return;
+        const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
+        currentOrder = menu[Math.floor(Math.random() * menu.length)];
+        
+        document.getElementById('customer-avatar').innerText = randomCustomer.avatar;
+        document.getElementById('customer-name').innerText = randomCustomer.name;
+        document.getElementById('order-item').innerText = currentOrder;
+    }
+
+    function showMessage(text) {
+        const msgEl = document.getElementById('msg');
+        msgEl.innerText = text;
+        msgEl.style.display = 'block';
+        setTimeout(() => { msgEl.style.display = 'none'; }, 800);
+    }
+
+    function serveOrder(item) {
+        if (!gameActive) return;
+
+        if (item === currentOrder) {
+            score += 10;
+            showMessage('+10 Delicious!');
+        } else {
+            score = Math.max(0, score - 5);
+            showMessage('-5 Wrong Order!');
+        }
+
+        document.getElementById('score').innerText = score;
+        generateCustomer();
+    }
+
+    // Timer logic
+    const timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+        } else {
+            gameActive = false;
+            clearInterval(timerInterval);
+            alert(`Game Over! Final Score: ${score}`);
+        }
+    }, 1000);
+
+    // Initial Start
+    generateCustomer();
+</script>
+
+</body>
+</html>
