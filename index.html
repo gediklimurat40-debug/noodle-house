@@ -192,4 +192,75 @@
 
     function generateCustomer() {
         if (!gameActive) return;
-        const customer = customers
+        const customer = customers[Math.floor(Math.random() * customers.length)];
+        currentRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+        
+        document.getElementById('customer-avatar').innerText = customer.avatar;
+        document.getElementById('customer-name').innerText = customer.name;
+        document.getElementById('order-recipe').innerText = `${currentRecipe.name} (${currentRecipe.icons})`;
+        clearBowl();
+    }
+
+    function addIngredient(icon, name) {
+        if (!gameActive || selectedIngredients.length >= 5) return;
+        selectedIngredients.push({ icon, name });
+        updateBowlUI();
+    }
+
+    function clearBowl() {
+        selectedIngredients = [];
+        updateBowlUI();
+    }
+
+    function updateBowlUI() {
+        const bowlEl = document.getElementById('bowl-contents');
+        if (selectedIngredients.length === 0) {
+            bowlEl.innerText = '🥣 Empty Bowl';
+        } else {
+            bowlEl.innerText = selectedIngredients.map(i => i.icon).join(' ');
+        }
+    }
+
+    function showMessage(text) {
+        const msgEl = document.getElementById('msg');
+        msgEl.innerText = text;
+        msgEl.style.display = 'block';
+        setTimeout(() => { msgEl.style.display = 'none'; }, 800);
+    }
+
+    function serveBowl() {
+        if (!gameActive) return;
+
+        const currentNames = selectedIngredients.map(i => i.name).sort();
+        const requiredNames = [...currentRecipe.req].sort();
+
+        const isCorrect = JSON.stringify(currentNames) === JSON.stringify(requiredNames);
+
+        if (isCorrect) {
+            score += 25;
+            showMessage('+25 Perfect Recipe!');
+        } else {
+            score = Math.max(0, score - 10);
+            showMessage('-10 Wrong Ingredients!');
+        }
+
+        document.getElementById('score').innerText = score;
+        generateCustomer();
+    }
+
+    const timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+        } else {
+            gameActive = false;
+            clearInterval(timerInterval);
+            alert(`Game Over! Final Score: ${score}`);
+        }
+    }, 1000);
+
+    generateCustomer();
+</script>
+
+</body>
+</html>
