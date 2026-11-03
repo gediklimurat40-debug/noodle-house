@@ -121,7 +121,7 @@
     
     <div class="stats-bar">
         <div>Score: <span id="score">0</span></div>
-        <div>Time: <span id="timer">120</span>s</div>
+        <div>Time: <span id="timer">60</span>s</div>
     </div>
 
     <div class="counter-area">
@@ -187,7 +187,7 @@
     let currentRecipe = null;
     let selectedIngredients = [];
     let score = 0;
-    let timeLeft = 120; // 120 seconds (2 minutes) timer
+    let timeLeft = 60;
     let gameActive = true;
 
     function generateCustomer() {
@@ -237,7 +237,7 @@
         const isCorrect = JSON.stringify(currentNames) === JSON.stringify(requiredNames);
 
         if (isCorrect) {
-            score += 25;
+            score += 25; // +25 for crafting correct dish
             showMessage('+25 Perfect Recipe!');
         } else {
             score = Math.max(0, score - 10);
